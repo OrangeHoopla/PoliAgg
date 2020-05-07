@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PoliAgg</title>   
+</head>
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<body>
+{% load static %}
+
+<script src="{% static 'us-map-svg.js' %}"></script>
+<link rel="stylesheet" href="{% static 'custom.css' %}">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"> </script> 
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+
+
+{% include 'navbar.html' %}
+
+
+<div class="jumbotron jumbotron-fluid bg-light">
+
+	<div class="row">
+
+		<div class="col-sm-2">
+
+		<img src="{%static 'logoidea2.svg'%}" width="100" height="100"class="img-fluid" alt="Responsive image">
+
+	</div>
+
+		<div class="col-sm-5">
+			
+
+				<div class="card-body bg-warning">
+				<h1 class="mb-5" id="typed"></h1>
+			</div>
+			
+
+
+		</div>
+	</div>
+</div>
+
+
+
+
+<script>
+    var options = {
+      strings: ["Better Politics", "Better Aggregation",
+      "Better Knowledge","Better Connections","Find Everything Here"],
+      typeSpeed: 20,
+      
+    }
+    var typed = new Typed("#typed", options);
+</script>
+
+
+
+
+
+
+
+
+<div class="row">
+<div id="col col-lg-4" class="col-lg-10"></div>
+
+
+
+
+
+<script>
+	
+  window.onload = function () {
+    var R = Raphael("col col-lg-4",920, 600),
+      attr = {
+      "fill": "#d3d3d3",
+      "stroke": "#fff",
+      "stroke-opacity": "1",
+      "stroke-linejoin": "round",
+      "stroke-miterlimit": "4",
+      "stroke-width": "0.75",
+      "stroke-dasharray": "none"
+    }
+    R.setViewBox(0,0,920,600,false);
+	R.setSize('100%', '100%');
+	
+    usRaphael = {};
+    states = R.set();
+    
+    //Draw Map and store Raphael paths
+    for (var state in usMap) {
+      usRaphael[state] = R.path(usMap[state]).attr(attr);
+      states.push(usRaphael[state]);
+    }
+
+    //Do Work on Map
+    for (var state in usRaphael) {
+      usRaphael[state].color = Raphael.getColor();
+      
+      (function (st, state) {
+
+        st[0].style.cursor = "pointer";
+        st[0].id = state;
+
+        st[0].onclick = function() {
+          
+          
+          var datas = document.getElementsByClassName('col-sm-2 '.concat(state))[0];
+
+          var datae = document.getElementsByClassName('col-sm-2 '.concat(state))[1];
+          var side = document.getElementById('test');
+
+          side.innerHTML = datas.innerHTML + datae.innerHTML;
+		  
+
+
+
+
+          
+        };
+
+        st[0].onmouseover = function () {
+          st.animate({fill: st.color}, 500);
+          st.toFront();
+          R.safari();
+          
+        };
+
+        st[0].onmouseout = function () {
+          st.animate({fill: "#d3d3d3"}, 500);
+          st.toFront();
+          R.safari();
+          
+        };
+        
+                   
+      })(usRaphael[state], state);
+    }
+            
+  };
+</script>
+
+
+<div id="test"class="col-sm-2"></div>
+</div>
+
+
+
+
+<div class="container">
+
+<div class="row">
+
+
+
+{% for keys, groups in posts.items %}
+
+
+
+{% for key, group in groups.senate.items %}
+	
+
+
+<div hidden>
+	<div id="{{keys}}" class="col-sm-2 {{keys}}">
+	<div className="card mb-4 box-shadow border">
+              <div class="card-body shadow border-top border-dark">
+               <img class="card-img-top" src="{{group.imgURL}}" alt="Thumbnail [100%x225]" />
+                  <p class="card-text">{{key}}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                    <a href="{{group.website}}">
+                      <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                      </a>
+                    </div>
+                    <small class="text-muted">{{group.party}}</small>
+                  </div>
+                </div>
+              </div>
+              </div>
+              </div>
+
+
+
+           
+
+
+	{% endfor %}
+{% endfor %}
+
+<div class="tab-content">
+
+    <div id="first" class="tab-pane fade in active">
+        Text
+        
+    </div>
+      
+    <div id="second" class="tab-pane fade in">
+        Text
+    </div>
+
+    <div id="third" class="tab-pane fade in">
+        Text
+    </div>
+</div>
+
+
+ 	</div>
+ </div>
+
+
+
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</body>
+
+
+</html>
