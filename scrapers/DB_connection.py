@@ -7,7 +7,7 @@ import requests
 mydb = mysql.connector.connect(
   host="localhost",
   user="orange",
-  passwd="19445715mK",
+  passwd="",
   database="demo"
 )
 
