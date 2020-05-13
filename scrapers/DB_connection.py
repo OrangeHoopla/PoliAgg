@@ -7,7 +7,7 @@ import requests
 mydb = mysql.connector.connect(
   host="localhost",
   user="orange",
-  passwd="",
+  passwd="19445715mK",
   database="demo"
 )
 
@@ -46,8 +46,8 @@ def insert_congress_table(member):
     sql = """INSERT INTO example_congress 
     (first_name, last_name, contact, party, 
     district, state, house, website,imageLink,
-    congress_num) 
-    VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+    congress_num,congresslink,served) 
+    VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
 
     mycursor.execute(sql, member)
     mydb.commit()
@@ -79,101 +79,14 @@ def insert_sub_committee_table(member):
 #generate_congress_table();
 #mycursor.execute("ALTER TABLE congress ADD congress_num INT(255)")
 #insert_congress_table(dummy)
-mycursor.execute("DELETE FROM congress WHERE district=0")
+#mycursor.execute("DELETE FROM congress WHERE district=0")
 
 def load_page(url):
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
     return soup
-
-
-
-def load_senate(congress):
-
-    senate = load_page('https://www.congress.gov/members?pageSize=100&q={"congress":"' 
-        + str(congress) + 
-        '","chamber":"Senate"}')
-
-
-    names = senate.find_all(class_='result-heading')
-
-    for i in range(0,200,2):
-
-        link = names[i].find('a', href=True)                # individual
-        #print(link['href'])
-        #print(link.get_text())  #link to individual page
-
-
-
-        senator = load_page(link['href'])
-
-
-        main = senator.find(class_='overview')
-        pic = main.find('a', href=True)['href'] # link to image
-
-
-        # needs to be reworked
-        body = senator.find(class_='overview-member-column-profile member_profile')
-        parts = body.find_all('td')
-
-
-        other = senator.find(class_='standard01 nomargin')
-        obj = other.find_all('td')
-
-
-
-
-        state = parts[0].get_text().replace("\n", "") # works
-        name = link.get_text().split() # works
-
-        try:
-            website = obj[0].get_text().replace("\n", "")
-        except:
-            website = "N/A"
-        try:
-            contact = obj[1].get_text().replace("\n", "")
-        except:
-            contact = "N/A"
-            party = website
-            website = "N/A"
-        try:
-            party = obj[2].get_text().replace("\n", "")
-        except:
-            party = obj[0].get_text().replace("\n", "")
         
 
-        print(name[1][:-1])
-        print(name[2])
-        print(state)
-        print(website)
-        print(contact)
-        print(party)
-        print("#########")
-
-        submition = []
-        submition.append(name[2]) # first name
-        submition.append(name[1][:-1]) # last name
-        submition.append(contact)
-        submition.append(party)
-        submition.append(0)
-        submition.append(state)
-        submition.append(0)
-        submition.append(website)
-        submition.append(pic)
-        submition.append(congress)
-
-
-        insert_congress_table(submition)
-
-
-
-
-
-def load_house(congress):
-    #https://www.congress.gov/members?q={%22congress%22:%22115%22,%22chamber%22:%22House%22}&searchResultViewType=expanded&KWICView=false&pageSize=100&page=1
-    house = load_page('https://www.congress.gov/members?pageSize=100&q={"congress":"' 
-        + str(congress) + 
-        '","chamber":"House"}')
 
 
 
@@ -345,10 +258,160 @@ def load_senate_committees():
         
         
     
+def load_bill_by_committee(congress,commitee):
+    link = '''
+    https://www.congress.gov/search?q={"source":"legislation","congress":"115","house-committee":"Energy+and+Commerce"}&searchResultViewType=expanded&KWICView=false&pageSize=100&
+    '''
+    
 
-        
-load_house_committees()
-load_senate_committees()
+    bill_page = load_page(link)
+    
+    page_numbers = bill_page.find_all(class_='results-number')
+    max_page = (page_numbers[1].get_text()).split(' ')[::-1]
+    print(max_page[0])
+
+    if(max_page[0] == ''):
+        max_page[0] = 1
+
+
+    for i in range(1,int(max_page[0]) + 1):
+        link = '''
+        https://www.congress.gov/search?q={"source":"legislation","congress":"115","house-committee":"Energy+and+Commerce"}&searchResultViewType=expanded&KWICView=false&pageSize=100&page=
+        ''' + str(i)
+        bill_page = load_page(link)
+
+        bill_list = bill_page.find(class_='basic-search-results-lists expanded-view')
+        bills = bill_list.find_all(class_='result-heading')
+        #gets rid of double results
+        bills = bills[::2]
+        for bill in bills:
+            print(bill.get_text())
+
+
+def load_bill_by_sponsor():
+    link = '''
+    https://www.congress.gov/search?searchResultViewType=expanded&KWICView=false&pageSize=100&q={%22source%22:%22legislation%22,%22congress%22:%22115%22,%22house-sponsor%22:%22Meng,+Grace+[D-NY]%22}
+    '''
+
+
+def load_congress(congress = '116',chamber=''):
+    link = 'https://www.congress.gov/members?q='
+    search_parameters = {"congress":congress}
+
+    if(chamber):
+        search_parameters["chamber"] = chamber
+    
+
+    query = link + str(search_parameters).replace("'",'"')
+
+    first = load_page(query)
+
+    #getting the pages to iterate through
+    page_numbers = first.find_all(class_='results-number')
+    max_page = (page_numbers[1].get_text()).split(' ')[::-1]
+    
+    #incase theres only one page
+    if(max_page[0] == ''):
+        max_page[0] = 1
+
+    for i in range(1,int(max_page[0]) + 1):
+        page_url = query + '&page=' + str(i)
+        page = load_page(page_url)
+
+        group = page.find(class_='basic-search-results-lists expanded-view')
+        members = group.find_all(class_='expanded')
+
+        for person in members:
+            header = person.find('a',href=True)
+
+            congresslink = header['href']
+            holder = header.get_text().split(' ',1)
+            #determining if rep or senator
+            if(holder[0] == 'Senator'):
+                house = 0
+            else:
+                house = 1
+            name = holder[1].split(', ',1)
+            first_name = name[1].replace(',','').replace(' ','')
+            last_name = name[0].replace(',','').replace(' ','')
+
+            info1 = person.find_all(class_='result-item')
+            state = info1[0].find('span').get_text()
+
+            if(house):
+                district = info1[1].find('span').get_text()
+                party = info1[2].find('span').get_text()
+                #some reps dont have districts
+                try:
+                    served = info1[3].find('span').get_text()
+                except:
+                    party = info1[1].find('span').get_text()
+                    served = info1[2].find('span').get_text()
+                    district = 0
+            else:
+                party = info1[1].find('span').get_text()
+                served = info1[2].find('span').get_text().replace('\n','').replace('\t','')
+                district = 0
+
+            image = person.find('img')
+            #some people dont have pics at all???
+            try:
+                pic = image['src']
+            except:
+                pic = ''
+
+            personal_page = load_page(congresslink)
+            info2 = personal_page.find(class_='standard01 nomargin')
+            #print(info2)
+            #some people dont have websites either?? even though the federal
+            #government gives them to you for free?!?1
+            try:
+                website = info2.find('a',href=True)['href']
+            except:
+                website = 'N/A'
+            #some people also dont have contact info
+            try:
+                contact = info2.find(class_='member_contact')
+                contact_info = contact.find_next_sibling('td').get_text().replace('\n','').replace('\t','')
+            except:
+                contact_info = 'N/A'
+            
 
 
 
+            submition = []
+            submition.append(first_name)
+            submition.append(last_name)
+            submition.append(contact_info)
+            submition.append(party)
+            submition.append(district)
+            submition.append(state)
+            submition.append(house)
+            submition.append(website)
+            submition.append(pic)
+            submition.append(congress)
+            submition.append(congresslink)
+            submition.append(served)
+
+            insert_congress_table(submition)
+
+
+            print(first_name + ' ' + last_name)
+            print(contact_info)
+            print(party)
+            print(district)
+            print(state)
+            print(house)
+            print(pic)
+            print(website)
+            print(served)
+            print('###########')
+
+load_congress(116)
+
+
+
+
+
+
+#load_congress(116)
