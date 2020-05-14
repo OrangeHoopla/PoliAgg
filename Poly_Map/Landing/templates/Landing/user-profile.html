@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
     <title>Hello, world!</title>
+    {% include 'navbar.html' %}
   </head>
   <body>
 {% load static %}
@@ -133,8 +134,37 @@
 
     	</div>
 
+    	<div class="row">
+    		<div class="col-4">
+    			<div class="card shadow">
+    				<div class="card-header">
+    					Bills
+    				</div>
+
+    				<div class="card-body">
+					    	<div class="panel-body">
+						        <ul class="list-group">
+						        	{% for bill in bills %}
+						            <li class="list-group-item">
+						            	<a href="{{bill.link}}">
+						            	{{bill.name}}
+						            	</a>
+						            </li>
+						            {% endfor %}
+						            
+						        </ul>
+						    </div>
+
+					  </div>
+
+  				</div>
+
+
+  			</div>
+    	</div>
 
   	</div>
+  	
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

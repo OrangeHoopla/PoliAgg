@@ -7,11 +7,13 @@ class bill(models.Model):
 	name = models.CharField(max_length=100)
 	title = models.CharField(max_length=100)
 	progress = models.CharField(max_length=100)
-	link = models.CharField(max_length=100) 
+	link = models.CharField(max_length=100)
+	congress_num = models.IntegerField(default=0)
+	chamber = models.CharField(max_length=100,default="")
 
 
 	def __str__(self):
-		return self.title
+		return self.name
 
 
 
@@ -22,12 +24,14 @@ class congress(models.Model):
 	last_name = models.CharField(max_length=50)
 	contact = models.CharField(max_length=400)
 	party = models.CharField(max_length=50)
-	district = models.IntegerField()
+	district = models.CharField(max_length=50)
 	state = models.CharField(max_length=50)
 	house = models.BooleanField()
 	website = models.CharField(max_length=150)
 	imageLink = models.CharField(max_length=150)
 	congress_num = models.IntegerField()
+	congresslink = models.CharField(max_length=150,default='')
+	served = models.CharField(max_length=150,default='')
 
 	bills = models.ManyToManyField(bill)
 
