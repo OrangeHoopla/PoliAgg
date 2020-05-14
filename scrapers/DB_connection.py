@@ -7,7 +7,7 @@ import requests
 mydb = mysql.connector.connect(
   host="localhost",
   user="orange",
-  passwd="19445715mK",
+  passwd="",
   database="demo"
 )
 
@@ -52,8 +52,25 @@ def insert_congress_table(member):
     mycursor.execute(sql, member)
     mydb.commit()
 
+def update_congress_table(member):
+
+    sql = """UPDATE example_congress SET
+    first_name=%s, last_name=%s, contact=%s, party=%s, 
+    district=%s, state=%s, house=%s, website=%s,imageLink=%s,
+    congress_num=%s,congresslink=%s,served=%s 
+    WHERE congresslink= '{}'""".format(member[10])
+
+    mycursor.execute(sql, member)
+    mydb.commit()
 
 
+def update_bills_table(bill):
+
+    sql = "UPDATE example_bill SET name=%s,title=%s,progress=%s,link=%s,congress_num=%s,chamber=%s WHERE link = '" + bill[3] +"'"
+
+    mycursor.execute(sql,bill)
+
+    mydb.commit()
 
 def insert_committee_table(member):
 
@@ -61,6 +78,26 @@ def insert_committee_table(member):
     (name, importance, address, location, 
     phone) 
     VALUES (%s,%s,%s,%s,%s)"""
+
+    mycursor.execute(sql, member)
+    mydb.commit()
+
+def insert_bills_table(member):
+
+    sql = """INSERT INTO example_bill 
+    (name, title, progress, link, 
+    congress_num,chamber) 
+    VALUES (%s,%s,%s,%s,%s,%s)"""
+
+    mycursor.execute(sql, member)
+    mydb.commit()
+
+
+def insert_congress_bill_table(member):
+
+    sql = """INSERT INTO example_congress_bills 
+    (congress_id,bill_id) 
+    VALUES (%s,%s)"""
 
     mycursor.execute(sql, member)
     mydb.commit()
@@ -259,39 +296,129 @@ def load_senate_committees():
         
     
 def load_bill_by_committee(congress,commitee):
-    link = '''
-    https://www.congress.gov/search?q={"source":"legislation","congress":"115","house-committee":"Energy+and+Commerce"}&searchResultViewType=expanded&KWICView=false&pageSize=100&
-    '''
-    
+    pass
 
-    bill_page = load_page(link)
-    
-    page_numbers = bill_page.find_all(class_='results-number')
+
+def load_bill(congress=116,source="legislation",chamber='',type_=''):
+    link = 'https://www.congress.gov/search?q='
+    search_parameters = {"source":source,"congress":congress}
+
+    if(chamber):
+        search_parameters["chamber"] = chamber
+
+    if(type_):
+        search_parameters["type"] = type_
+
+    query = link + str(search_parameters).replace("'",'"')
+    first = load_page(query)
+
+    #getting the pages to iterate through
+    page_numbers = first.find_all(class_='results-number')
     max_page = (page_numbers[1].get_text()).split(' ')[::-1]
-    print(max_page[0])
-
+    
+    #incase theres only one page
     if(max_page[0] == ''):
         max_page[0] = 1
 
-
     for i in range(1,int(max_page[0]) + 1):
-        link = '''
-        https://www.congress.gov/search?q={"source":"legislation","congress":"115","house-committee":"Energy+and+Commerce"}&searchResultViewType=expanded&KWICView=false&pageSize=100&page=
-        ''' + str(i)
-        bill_page = load_page(link)
+        page_url = query + '&page=' + str(i)
+        page = load_page(page_url)
 
-        bill_list = bill_page.find(class_='basic-search-results-lists expanded-view')
-        bills = bill_list.find_all(class_='result-heading')
-        #gets rid of double results
-        bills = bills[::2]
+        group = page.find(class_='basic-search-results-lists expanded-view')
+        bills = group.find_all(class_='expanded')
+
         for bill in bills:
-            print(bill.get_text())
+            #some bills are reserved ???
+            try:
+                name = bill.find('a',href=True).get_text()
+                link = bill.find('a',href=True)['href']
+                sponsor = bill.find_all('a',href=True)[1]
+                if(name[0] == 'H'):
+                    chamber = 'House'
+                else:
+                    chamber = 'Senate'
+
+                #print(name)
+                #print(link)
+                #print(sponsor['href'])
+                #print(chamber)
+                #print('########')
+                
+                #getting the title
+                #page1 = load_page(link)
+                #subsection = page1.find(class_='tabs_links')
+                #link2 = subsection.find_all('a',href=True)[2]['href']
 
 
-def load_bill_by_sponsor():
-    link = '''
-    https://www.congress.gov/search?searchResultViewType=expanded&KWICView=false&pageSize=100&q={%22source%22:%22legislation%22,%22congress%22:%22115%22,%22house-sponsor%22:%22Meng,+Grace+[D-NY]%22}
-    '''
+                #page2 = load_page(link2)
+                #subsection = page1.find(class_='titles-row')
+                #title = subsection.find('p').get_text()
+                
+                title = 'N/A'
+
+
+                sql = "SELECT * FROM example_bill WHERE link='" + link + "'"
+                mycursor.execute(sql)
+                myresult = mycursor.fetchall()
+
+                submition = []
+                submition.append(name)
+                submition.append(title)
+                submition.append('N/A')
+                submition.append(link)
+                submition.append(congress)
+                submition.append(chamber)
+
+                #final check before submition or update
+                if(not myresult):
+                    insert_bills_table(submition)
+                    print(name + " inserted")
+                else:
+                    update_bills_table(submition)
+
+                    print(name + " updated")
+
+                #linking bill to sponsor
+                sql = "SELECT * FROM example_bill WHERE link='" + link + "'"
+                mycursor.execute(sql)
+                myresult = mycursor.fetchall()
+
+                #print(myresult)
+                bill_id = myresult[0][0]
+                sponsorlink = 'https://www.congress.gov' + sponsor['href']
+
+                sql = "SELECT * FROM example_congress WHERE congresslink='" + sponsorlink + "'"
+                mycursor.execute(sql)
+                myresult = mycursor.fetchall()
+                #print(myresult)
+                sponsor_id = myresult[0][0]
+
+                submition2 = []
+                submition2.append(sponsor_id)
+                submition2.append(bill_id)
+
+                #checking if link present
+                sql = "SELECT * FROM example_congress_bills WHERE congress_id='" + str(sponsor_id) + "' AND bill_id='" + str(bill_id) + "'"
+
+                mycursor.execute(sql)
+                myresult = mycursor.fetchall()
+                
+                if(not myresult):
+                    insert_congress_bill_table(submition2)
+                    print(name + " link created")
+                else:
+                    print(name + " already existing combo")
+
+
+                
+
+
+
+            except:
+                pass
+
+
+
 
 
 def load_congress(congress = '116',chamber=''):
@@ -393,25 +520,36 @@ def load_congress(congress = '116',chamber=''):
             submition.append(congresslink)
             submition.append(served)
 
-            insert_congress_table(submition)
+            sql = "SELECT * FROM example_congress WHERE congresslink='" + str(congresslink) + "'"
+
+            mycursor.execute(sql)
+            myresult = mycursor.fetchall()
+                
+            if(not myresult):
+                insert_congress_table(submition)
+                print(first_name + ' ' + last_name + " added")
+            else:
+                update_congress_table(submition)
+                print(first_name + ' ' + last_name + " updated")
+                #update
+
+            
 
 
-            print(first_name + ' ' + last_name)
-            print(contact_info)
-            print(party)
-            print(district)
-            print(state)
-            print(house)
-            print(pic)
-            print(website)
-            print(served)
-            print('###########')
+            #print(first_name + ' ' + last_name)
+            #print(contact_info)
+            #print(party)
+            #print(district)
+            #print(state)
+            #print(house)
+            #print(pic)
+            #print(website)
+            #print(served)
+            #print('###########')
+
+#load_congress(115)
+
+
+#load_bill(type_="bills")
 
 load_congress(116)
-
-
-
-
-
-
-#load_congress(116)
