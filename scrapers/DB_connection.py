@@ -7,7 +7,7 @@ import requests
 mydb = mysql.connector.connect(
   host="localhost",
   user="orange",
-  passwd="",
+  passwd="19445715mK",
   database="demo"
 )
 
@@ -96,6 +96,14 @@ def insert_bills_table(member):
 def insert_congress_bill_table(member):
 
     sql = """INSERT INTO example_congress_bills 
+    (congress_id,bill_id) 
+    VALUES (%s,%s)"""
+
+    mycursor.execute(sql, member)
+    mydb.commit()
+
+def insert_congress_cosponsored_table(member):
+    sql = """INSERT INTO example_congress_cosponsored 
     (congress_id,bill_id) 
     VALUES (%s,%s)"""
 
@@ -333,6 +341,7 @@ def load_bill(congress=116,source="legislation",chamber='',type_=''):
                 name = bill.find('a',href=True).get_text()
                 link = bill.find('a',href=True)['href']
                 sponsor = bill.find_all('a',href=True)[1]
+                cosponsor = bill.find_all('a',href=True)[2]
                 if(name[0] == 'H'):
                     chamber = 'House'
                 else:
@@ -355,17 +364,19 @@ def load_bill(congress=116,source="legislation",chamber='',type_=''):
                 #title = subsection.find('p').get_text()
                 
                 title = 'N/A'
+                
 
-
-                sql = "SELECT * FROM example_bill WHERE link='" + link + "'"
+                link = link.split('?')
+                sql = "SELECT * FROM example_bill WHERE link='" + link[0] + "'"
                 mycursor.execute(sql)
                 myresult = mycursor.fetchall()
-
+                #part of the link changes dynamically
+                
                 submition = []
                 submition.append(name)
                 submition.append(title)
                 submition.append('N/A')
-                submition.append(link)
+                submition.append(link[0])
                 submition.append(congress)
                 submition.append(chamber)
 
@@ -379,7 +390,7 @@ def load_bill(congress=116,source="legislation",chamber='',type_=''):
                     print(name + " updated")
 
                 #linking bill to sponsor
-                sql = "SELECT * FROM example_bill WHERE link='" + link + "'"
+                sql = "SELECT * FROM example_bill WHERE link='" + link[0] + "'"
                 mycursor.execute(sql)
                 myresult = mycursor.fetchall()
 
@@ -408,6 +419,42 @@ def load_bill(congress=116,source="legislation",chamber='',type_=''):
                     print(name + " link created")
                 else:
                     print(name + " already existing combo")
+
+
+                #creating/updating co sponsors
+                
+                if(int(cosponsor.get_text()) != 0):
+                    copage = load_page(cosponsor['href'])
+                    cotable = copage.find(class_='item_table')
+                    copeople = cotable.find_all('a',href=True)
+                    for co in copeople:
+                        #print('     ' + co['href'])
+
+                        sql = "SELECT * FROM example_congress WHERE congresslink='" + co['href'] + "'"
+                        mycursor.execute(sql)
+                        myresult = mycursor.fetchall()
+                        co_id = myresult[0][0]
+
+                        submition3 = []
+                        submition3.append(co_id)
+                        submition3.append(bill_id)
+
+
+
+                        sql = "SELECT * FROM example_congress_cosponsored WHERE congress_id='" + str(co_id) + "' AND bill_id='" + str(bill_id) + "'"
+
+                        mycursor.execute(sql)
+                        myresult = mycursor.fetchall()
+
+                        if(not myresult):
+                            insert_congress_cosponsored_table(submition3)
+                            print("     " + co.get_text() + " cosponsor added")
+                        else:
+                            #print(name + " already existing cosponsor")
+                            pass
+
+
+
 
 
                 
@@ -549,7 +596,11 @@ def load_congress(congress = '116',chamber=''):
 
 #load_congress(115)
 
+#sql = "DELETE FROM example_bill"
+#mycursor.execute(sql)
+#mydb.commit()
 
-#load_bill(type_="bills")
 
-load_congress(116)
+load_bill(type_="bills")
+
+#load_congress(116)
