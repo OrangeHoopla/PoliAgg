@@ -1,9 +1,10 @@
 #!/bin/bash
 minsize=220
+wget https://www2.census.gov/geo/tiger/TIGER2019/CD/tl_2019_us_cd116.zip
+rest="tl_2019_us_cd116.zip"
+unzip $rest
 
-unzip $1
-
-ogr2ogr -f GeoJSON -t_srs crs:84 districts.json ${1%.zip}.shp
+ogr2ogr -f GeoJSON -t_srs crs:84 districts.json ${rest%.zip}.shp
 mv districts.json info/
 for i in {1..100}
 do
