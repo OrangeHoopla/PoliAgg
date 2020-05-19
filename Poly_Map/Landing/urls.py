@@ -8,5 +8,7 @@ urlpatterns = [
     path('house/',views.house),
     path('senate/',views.senate),
     path('senate/<username>/',views.home2),
+    path('state/<state>/',views.state),
+    path('state/',views.statelist),
 ]
 

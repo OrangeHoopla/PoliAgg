@@ -34,6 +34,7 @@ class congress(models.Model):
 	served = models.CharField(max_length=150,default='')
 
 	bills = models.ManyToManyField(bill)
+	cosponsored = models.ManyToManyField(bill,related_name='cosponsored')
 
 
 
@@ -49,6 +50,7 @@ class committee(models.Model):
 	importance = models.IntegerField()					 # how we value the committee
 	address = models.CharField(max_length=400,default=0)
 	phone = models.CharField(max_length=20,default=0)
+	link = models.CharField(max_length=200,default=0)
 
 	bills = models.ManyToManyField(bill)
 	
@@ -59,3 +61,4 @@ class sub_committee(models.Model):
 	name = models.CharField(max_length=200)
 	members = models.ManyToManyField(congress)
 	committee = models.ForeignKey(committee,on_delete=models.CASCADE,null=True)
+	link = models.CharField(max_length=200,default=0)

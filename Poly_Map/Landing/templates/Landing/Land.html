@@ -81,7 +81,7 @@
       "stroke-width": "0.75",
       "stroke-dasharray": "none"
     }
-    R.setViewBox(0,0,920,600,false);
+  R.setViewBox(0,0,920,600,false);
 	R.setSize('100%', '100%');
 	
     usRaphael = {};
@@ -102,15 +102,18 @@
         st[0].style.cursor = "pointer";
         st[0].id = state;
 
+
         st[0].onclick = function() {
           
           
-          var datas = document.getElementsByClassName('col-sm-2 '.concat(state))[0];
+          //var datas = document.getElementsByClassName('col-sm-2 '.concat(state))[0];
 
-          var datae = document.getElementsByClassName('col-sm-2 '.concat(state))[1];
-          var side = document.getElementById('test');
+          //var datae = document.getElementsByClassName('col-sm-2 '.concat(state))[1];
+          //var side = document.getElementById('test');
+           window.location = "/state/".concat(state);
+           window.open(url);
 
-          side.innerHTML = datas.innerHTML + datae.innerHTML;
+          //side.innerHTML = datas.innerHTML + datae.innerHTML;
 		  
 
 

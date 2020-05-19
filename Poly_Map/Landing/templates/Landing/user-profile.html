@@ -10,6 +10,11 @@
 
     <title>Hello, world!</title>
     {% include 'navbar.html' %}
+
+        	<div class="row">
+&nbsp
+    	</div>
+
   </head>
   <body>
 {% load static %}
@@ -133,12 +138,14 @@
 
 
     	</div>
-
+    	<div class="row">
+&nbsp
+    	</div>
     	<div class="row">
     		<div class="col-4">
     			<div class="card shadow">
     				<div class="card-header">
-    					Bills
+    					Sponsored Bills
     				</div>
 
     				<div class="card-body">
@@ -161,7 +168,43 @@
 
 
   			</div>
+
+
+  			<div class="col-4">
+    			<div class="card shadow">
+    				<div class="card-header">
+    					Co-Sponsored Bills
+    				</div>
+
+    				<div class="card-body">
+					    	<div class="panel-body">
+						        <ul class="list-group">
+						        	{% for bill in cosponsored %}
+						            <li class="list-group-item">
+						            	<a href="{{bill.link}}">
+						            	{{bill.name}}
+						            	</a>
+						            </li>
+						            {% endfor %}
+						            
+						        </ul>
+						    </div>
+
+					  </div>
+
+  				</div>
+
+
+  			</div>
+
+
+
     	</div>
+
+    	<div class="row">
+&nbsp
+    	</div>
+
 
   	</div>
   	

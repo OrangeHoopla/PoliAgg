@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% load static %}
+    <!-- Bootstrap CSS -->
+    <script src="{% static "js/libs/modernizr-2.0.6.min.js" %}"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    
+    <title>States</title>
+    {% include 'navbar.html' %}
+  </head>
+
+
+  <style>
+
+path {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.districts {
+  fill: #bbb;
+}
+
+.districts :hover {
+  fill: orange;
+}
+
+.district-boundaries {
+  pointer-events: none;
+  fill: none;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+
+.state-boundaries {
+  pointer-events: none;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+</style>
+
+
+
+
+  <body>
+
+  <div class="container">
+    <div id="main" role="main">
+      
+      <div id="vis"></div>
+    </div>
+  </div> 
+
+
+  <script>window.jQuery || document.write('<script src="{% static "js/libs/jquery-1.11.1.min.js" %}"><\/script>')</script>
+  <script src="{% static "js/libs/d3.js" %}"></script>
+  <script src="{% static "js/libs/coffee-script.js" %}"></script>
+  <!--linking this doesnt work needs to be included!-->
+
+  <script type="text/javascript">
+    
+
+$(document).ready(function() {
+  console.log('ready');
+  var width = 900;
+  var height = 900;
+
+  var projection = d3.geo.albersUsa().scale(1).translate([0,0]);
+  var path = d3.geo.path().projection(projection);
+
+  var vis = d3.select("#vis")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+
+
+  d3.json("/static/data/{{state.lower}}.json", function(json) {
+    console.log("loaded geojson");
+    var bounds = path.bounds(json);
+    
+    var s = 0.95 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height);
+    var t = [(width - s * (bounds[1][0] + bounds[0][0])) / 2, (height - s * (bounds[1][1] + bounds[0][1])) / 2];
+    
+    projection
+      .scale(s)
+      .translate(t);
+
+    vis.append("g")
+      .attr("class", "districts")
+    .selectAll("path")
+      .data(json.features)
+      .enter().append("path")
+        .attr("d", path)
+
+        
+        
+        .attr("district", function(d) { return (d.properties["NAMELSAD"]);})
+
+        .attr("fill-opacity", 0.8)
+        .attr("stroke", "#333")
+        .attr("fill", function(d) { return (d.properties["STATEFP10"] == "20") ? "#B5D9B9" :  "#85C3C0"; });
+
+  });
+});
+
+
+
+  </script>
+
+
+  </body>
+  
+</html>
