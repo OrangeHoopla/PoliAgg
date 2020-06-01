@@ -198,8 +198,71 @@
   			</div>
 
 
+  			<div class="col-4">
+  			<div class="card shadow">
+    				<div class="card-header">
+    					Committees
+    				</div>
+
+    				<div class="card-body">
+					    	<div class="panel-body">
+						        <ul class="list-group">
+						        	{% for com in committees %}
+						            <li class="list-group-item">
+						            	<a href="{{com.link}}">
+						            	{{com.name}}
+						            	</a>
+						            </li>
+						            {% endfor %}
+						            
+						        </ul>
+						    </div>
+
+					  </div>
+
+  				</div>
+
+
+&nbsp
+
+  				<div class="card shadow">
+    				<div class="card-header">
+    					Sub-Committees
+    				</div>
+
+    				<div class="card-body">
+					    	<div class="panel-body">
+						        <ul class="list-group">
+						        	{% for com in subcommittees %}
+						            <li class="list-group-item">
+						            	<a href="{{com.link}}">
+						            	{{com.name}}
+						            	</a>
+						            </li>
+						            {% endfor %}
+						            
+						        </ul>
+						    </div>
+
+					  </div>
+
+  				</div>
+
+
+
+  			</div>
+
+
+
+
+
+  				
+
+
 
     	</div>
+
+
 
     	<div class="row">
 &nbsp

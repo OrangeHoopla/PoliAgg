@@ -24,5 +24,14 @@
         <a class="nav-link text-dark" href="#">Ads</a>
       </li>
     </ul>
-  </div>  
+  </div>
+
+
+  <form class="navbar-form navbar-left" method="GET" action="{% url 'search' %}">
+        <div class="form-group">
+          <input name="q" type="text" class="form-control" placeholder="Search" value="{{request.GET.q}}">
+        </div>
+        
+      </form>  
+      
 </nav>

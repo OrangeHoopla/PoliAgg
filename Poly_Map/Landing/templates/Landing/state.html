@@ -115,6 +115,146 @@ $(document).ready(function() {
   </script>
 
 
+
+
+
+<div class="container-fluid">
+  <div class="jumbotron jumbotron-fluid bg-warning shadow">
+  <div class="container">
+    <h1 class="display-4">Senators</h1>
+    
+
+  </div>
+</div>
+  <div class="row">
+{% for person in senate %}
+
+<div class="col-4">
+
+          <div class="card shadow">
+
+            <div class="card-header">
+              {{person.first_name}} {{person.last_name}}
+            </div>
+            <div class="card-body">
+              <div class="row">
+                  <div class="col">
+                    <a href='/house/{{person.first_name}},{{person.last_name}}'>
+                    <img src="https://www.congress.gov/{{person.imageLink}}" class="rounded float-left img-fluid" alt="...">
+                  </a>
+                  </div>
+
+                  <div class="col ">
+                   
+
+                  <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="#">{{person.party}}</a></li>
+                      
+                    </ol>
+                  </nav>
+
+                  <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="#">{{person.contact}}</a></li>
+                    </ol>
+                  </nav>
+                </div>
+            </div>
+
+            
+              
+            </div>
+        </div>
+&nbsp
+        </div>
+
+        {%endfor%}
+
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid">
+  <div class="jumbotron jumbotron-fluid bg-warning shadow">
+  <div class="container">
+    <h1 class="display-4">Congressmen</h1>
+    
+
+  </div>
+</div>
+  <div class="row">
+{% for person in house %}
+
+<div class="col-4">
+
+          <div class="card shadow">
+
+            <div class="card-header">
+              {{person.first_name}} {{person.last_name}}
+            </div>
+            <div class="card-body">
+              <div class="row">
+                  <div class="col">
+                    <a href='/house/{{person.first_name}},{{person.last_name}}'>
+                    <img src="https://www.congress.gov/{{person.imageLink}}" class="rounded float-left img-fluid" alt="...">
+                  </a>
+                  </div>
+
+                  <div class="col ">
+                   
+
+                  <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="#">{{person.party}}</a></li>
+                      
+                    </ol>
+                  </nav>
+
+                  <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="#">{{person.contact}}</a></li>
+                    </ol>
+                  </nav>
+
+                  <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="#">District: {{person.district}}</a></li>
+                    </ol>
+                  </nav>
+
+                </div>
+            </div>
+
+            
+              
+            </div>
+        </div>
+&nbsp
+        </div>
+
+        {%endfor%}
+
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
   </body>
   
 </html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+    {% include 'navbar.html' %}
+
+        	<div class="row">
+&nbsp
+    	</div>
+
+  </head>
+  <body>
+  	<style>
+
+.list-group{
+    max-height: 400px;
+    margin-bottom: 10px;
+    overflow:scroll;
+    -webkit-overflow-scrolling: touch;
+}
+</style>
+  	{% load static %}
+
+  	    <div class="container-fluid">
+    	<div class="row">
+
+
+    		<div class="col-4">
+    			<div class="card shadow">
+    				<div class="card-header">
+    					People
+    				</div>
+
+    				<div class="card-body">
+					    	<div class="panel-body">
+						        <ul class="list-group">
+						        	{% for person in people %}
+
+						        		{% if person.house == 1 %}
+						        			{% with location="house" %}
+						        			<li class="list-group-item">
+								            	<a href="/{{location}}/{{person.first_name}},{{person.last_name}}">
+								            	{{person.first_name}} {{person.last_name}}
+								            	</a>
+						            		</li>
+						            		{% endwith %}
+
+						        		{% else %}
+						        			{% with location="senate" %}
+						        			<li class="list-group-item">
+								            	<a href="/{{location}}/{{person.first_name}},{{person.last_name}}">
+								            	{{person.first_name}} {{person.last_name}}
+								            	</a>
+						            		</li>
+						            		{% endwith %}
+						        			
+						        		{% endif %}
+
+						            
+						            
+						            
+						            {% endfor %}
+						            
+						        </ul>
+						    </div>
+
+					  </div>
+
+  				</div>
+			</div>
+
+
+
+
+			<div class="col-4">
+    			<div class="card shadow">
+    				<div class="card-header">
+    					Bills
+    				</div>
+
+    				<div class="card-body">
+					    	<div class="panel-body">
+						        <ul class="list-group">
+						        	{% for bill in bills %}
+
+						    
+						        			<li class="list-group-item">
+								            	<a href="{{bill.link}}">
+								            	{{bill.name}} From {{bill.chamber}}
+								            	</a>
+						            		</li>
+						            		
+
+						            
+						            {% endfor %}
+						            
+						        </ul>
+						    </div>
+
+					  </div>
+
+  				</div>
+			</div>
+
+
+
+
+
+
+    		</div>
+    		</div>
+       
+    </body>
+</html>
