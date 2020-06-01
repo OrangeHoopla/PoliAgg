@@ -10,6 +10,8 @@ class bill(models.Model):
 	link = models.CharField(max_length=100)
 	congress_num = models.IntegerField(default=0)
 	chamber = models.CharField(max_length=100,default="")
+	pdflink = models.CharField(max_length=100,default="")
+	views = models.IntegerField(default=0)
 
 
 	def __str__(self):
@@ -32,7 +34,7 @@ class congress(models.Model):
 	congress_num = models.IntegerField()
 	congresslink = models.CharField(max_length=150,default='')
 	served = models.CharField(max_length=150,default='')
-
+	views = models.IntegerField(default=0)
 	bills = models.ManyToManyField(bill)
 	cosponsored = models.ManyToManyField(bill,related_name='cosponsored')
 
