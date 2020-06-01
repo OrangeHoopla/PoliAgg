@@ -13,9 +13,6 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-sql = "INSERT INTO customers (name, address) VALUES (%s, %s)"
-val = ("John", "Highway 21")
-dummy = ["John", "doe", "imaginary street","Democrat", 12, "Florida", 1,"www.google.com","image.com",115]
 #mycursor.execute(sql, val)
 
 #mydb.commit()
@@ -75,9 +72,9 @@ def update_bills_table(bill):
 def insert_committee_table(member):
 
     sql = """INSERT INTO example_committee 
-    (name, importance, address, location, 
-    phone) 
-    VALUES (%s,%s,%s,%s,%s)"""
+    (name, location, importance, address, 
+    phone, link) 
+    VALUES (%s,%s,%s,%s,%s,%s)"""
 
     mycursor.execute(sql, member)
     mydb.commit()
@@ -110,126 +107,38 @@ def insert_congress_cosponsored_table(member):
     mycursor.execute(sql, member)
     mydb.commit()
 
+def insert_committee_members_table(member):
+    sql = """INSERT INTO example_committee_members 
+    (committee_id,congress_id) 
+    VALUES (%s,%s)"""
 
-def insert_sub_committee_table(member):
+    mycursor.execute(sql, member)
+    mydb.commit()
 
-    sql = """INSERT INTO example_sub_committee 
-    (name, committee_id) 
+def insert_subcommittee_members_table(member):
+    sql = """INSERT INTO example_sub_committee_members 
+    (sub_committee_id,congress_id) 
     VALUES (%s,%s)"""
 
     mycursor.execute(sql, member)
     mydb.commit()
 
 
-#generate_congress_table();
-#mycursor.execute("ALTER TABLE congress ADD congress_num INT(255)")
-#insert_congress_table(dummy)
-#mycursor.execute("DELETE FROM congress WHERE district=0")
+def insert_sub_committee_table(member):
+
+    sql = """INSERT INTO example_sub_committee 
+    (name, committee_id, link) 
+    VALUES (%s,%s,%s)"""
+
+    mycursor.execute(sql, member)
+    mydb.commit()
+
 
 def load_page(url):
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
     return soup
         
-
-
-
-
-def load_house_committees():
-    house = load_page("http://clerk.house.gov/committee_info/index.aspx")
-    table = house.find(id='com_directory')
-    lister = table.find_all('li')
-    
-    for i in lister:
-        link = 'http://clerk.house.gov'
-        try:
-            link = link + i.find('a', href=True)['href']
-        except:
-            print(i.get_text() + " Skipped")
-            submition = []
-            submition.append(i.get_text().replace("\n", "").replace("'", ""))
-            submition.append(5)
-            submition.append("N/A")
-            submition.append("N/A")
-            submition.append("N/A")
-            sql = 'SELECT * FROM example_committee WHERE name ="' + i.get_text().replace("\n", "").replace("'", "") + '"'
-            mycursor.execute(sql)
-            myresult = mycursor.fetchall()
-
-            if(not myresult):
-                insert_committee_table(submition)
-            else:
-                print(name[0].replace("'", "") + "already there")
-            continue
-            #some committees dont have a link
-
-        #print(i.get_text().replace("\n", ""))
-        commitee = load_page(link)
-        main = commitee.find(id='com_display')
-
-        name = main.find('h3').get_text().replace("\n", "").split(' on ')[::-1] # my magic
-        print(name[0])
-        location = 'house'
-        address = main.find(id='address').get_text().replace("\n", "")
-        phone = "N/A"
-        submition1 = []
-        submition1.append(name[0].replace("'", ""))
-        submition1.append(0)
-        submition1.append(address)
-        submition1.append('house')
-        submition1.append('N/A')
-
-        sql = 'SELECT * FROM example_committee WHERE name ="' + name[0].replace("'", "") + '" AND location="house"'
-        mycursor.execute(sql)
-        myresult = mycursor.fetchall()
-
-        if(not myresult):
-            insert_committee_table(submition1)
-        else:
-            print(name[0].replace("'", "") + "already there")
-            
-
-        #^^^ un comment to redo 
-
-
-        #filling subcommittees
-
-        #pulling id from committee
-        sql = "SELECT * FROM example_committee WHERE name ='" + name[0].replace("'", "") + "' AND location='house'"
-        mycursor.execute(sql)
-        myresult = mycursor.fetchall()
-        id_start = myresult[0][0]
-
-        sub = main.find(id='subcom_list')
-        subcommittees = sub.find_all('li')
-
-        for j in subcommittees:
-            #print('     ' + j.get_text().replace("\n", ""))
-            group = 'http://clerk.house.gov'
-            submition2 = []
-            submition2.append(j.get_text().replace("\n", "").replace("'", "")) # name
-            submition2.append(id_start)
-
-            #checking if its in the table already
-            sql = 'SELECT * FROM example_sub_committee WHERE name ="' + j.get_text().replace("\n", "").replace("'", "") + '"'
-            mycursor.execute(sql)
-            myresult = mycursor.fetchall()
-
-            if(not myresult):
-                insert_sub_committee_table(submition2)
-            else:
-                print(j.get_text().replace("\n", "") + "already there")
-                
-
-            #will need later for assigning members
-            group = group + j.find('a', href=True)['href']
-
-            #print(group)
-
-
-
-#load_house_committees()
-
 
 def load_senate_committees():
     senate = load_page("https://www.senate.gov/general/committee_membership/committee_memberships_SSAF.htm")
@@ -301,10 +210,6 @@ def load_senate_committees():
             
             print('     ' + subname[0])
         
-        
-    
-def load_bill_by_committee(congress,commitee):
-    pass
 
 
 def load_bill(congress=116,source="legislation",chamber='',type_=''):
@@ -596,11 +501,177 @@ def load_congress(congress = '116',chamber=''):
 
 #load_congress(115)
 
-#sql = "DELETE FROM example_bill"
+#sql = "DELETE FROM example_committee"
 #mycursor.execute(sql)
 #mydb.commit()
 
 
-load_bill(type_="bills")
+def load_congress_committee():
+    directory = load_page('https://clerkpreview.house.gov/Committees/')
+    committees = directory.find_all(class_='col-sm-11 col-xs-10 library-committeePanel-heading')
+    #main committees
+    for committee in committees:
+        name = committee.get_text().replace('\n','').split('on ',1)[::-1]
+        #print(name[0])
+        link = committee.find('a',href=True)['href']
+        link = "https://clerkpreview.house.gov" + link
+        committee_page = load_page(link)
 
-#load_congress(116)
+
+
+        address = committee_page.find(class_='address').get_text()
+        phone = committee_page.find(class_='phone').get_text()
+        #print('PHONE: ' + phone)
+        #print('LOCATION: ' + address)
+        submition1 = []
+        submition1.append(name[0])
+        submition1.append('house')
+        submition1.append(0)
+        submition1.append(address)
+        submition1.append(phone)
+        submition1.append(link)
+
+        sql = "SELECT * FROM example_committee WHERE link='" + str(link) + "'"
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+                
+        if(not myresult):
+            insert_committee_table(submition1)
+            print(name[0] + " added")
+
+            sql = "SELECT * FROM example_committee WHERE link='" + str(link) + "'"
+            mycursor.execute(sql)
+            myresult = mycursor.fetchall()
+        else:
+            print(name[0] + ' Already exists')
+
+        committee_id = myresult[0][0]
+
+
+
+        try:
+            #subcommittees
+            sub_directory = committee_page.find(class_='subcommittees')
+            subcommittee = sub_directory.find_all('a',href=True)
+            print('     SUBCOMMITTEES: ')
+            for sub in subcommittee:
+
+                sublink = 'https://clerkpreview.house.gov' + sub['href']
+                subname = sub.get_text()
+                subpage = load_page(sublink)
+
+                submition2 = []
+                submition2.append(subname)
+                submition2.append(committee_id)
+                submition2.append(sublink)
+                
+                sql = "SELECT * FROM example_sub_committee WHERE link='" + str(sublink) + "'"
+                mycursor.execute(sql)
+                myresult = mycursor.fetchall()
+                        
+                if(not myresult):
+                    insert_sub_committee_table(submition2)
+                    print('         ' + subname + " added")
+
+                    sql = "SELECT * FROM example_sub_committee WHERE link='" + str(sublink) + "'"
+                    mycursor.execute(sql)
+                    myresult = mycursor.fetchall()
+                else:
+                    print('         ' + subname + ' Already exists')
+                subcommittee_id = myresult[0][0]
+
+
+                try:
+                    #members of sub committee
+                    member_directory = subpage.find(class_='members')
+                    submembers = member_directory.find_all('a',href=True)
+
+                    sql = "DELETE FROM example_sub_committee_members WHERE sub_committee_id = {}".format(subcommittee_id)
+                    mycursor.execute(sql)
+                    mydb.commit()
+
+                    for member in submembers:
+                        #print(member['href'])
+                        identifier = member['href'].split('/')[::-1]
+                        
+                        sql = "SELECT * FROM example_congress WHERE congresslink LIKE '%{}%'".format(identifier[0])
+
+                        mycursor.execute(sql)
+                        myresult = mycursor.fetchall()
+                        congressmen_id = myresult[0][0]
+
+                        submition4 = []
+                        submition4.append(subcommittee_id)
+                        submition4.append(congressmen_id)
+                        insert_subcommittee_members_table(submition4)
+                        
+                except:
+                    print("sub-members not listed")
+
+        except:
+            print('no subcommittee')
+
+        print(' ')
+
+
+
+
+
+
+
+
+        try:
+            #members of main committee
+            member_directory = committee_page.find(class_='members')
+            members = member_directory.find_all('a',href=True)
+
+            #cleaning previous members
+            sql = "DELETE FROM example_committee_members WHERE committee_id = {}".format(committee_id)
+            mycursor.execute(sql)
+            mydb.commit()
+
+            for member in members:
+                #print(member['href'])
+                identifier = member['href'].split('/')[::-1]
+                
+                sql = "SELECT * FROM example_congress WHERE congresslink LIKE '%{}%'".format(identifier[0])
+
+                mycursor.execute(sql)
+                myresult = mycursor.fetchall()
+                congressmen_id = myresult[0][0]
+
+                submition3 = []
+                submition3.append(committee_id)
+                submition3.append(congressmen_id)
+                insert_committee_members_table(submition3)
+                #print(congressmen_id
+        except:
+            print("members not listed")
+            
+from xml.dom import minidom           
+
+def load_senate_committee():
+    pass
+    direct = load_page('https://www.senate.gov/general/committee_membership/committee_memberships_SSAP.htm')
+    listed = direct.find('form',class_='contenttext')
+    links = listed.find_all(class_='contenttext',value=True)
+    for link in links:
+        xmllink = 'https://www.senate.gov/' + link['value'][:-3] + 'xml'
+        print(xmllink)
+    #load webpage
+    #get all xml file names
+    #port to bash to wget
+    #call with minidom.parse
+        
+
+        
+
+#load_bill(type_="bills")
+
+
+#possible bill status solution https://stackoverflow.com/questions/54802990/beautifulsoup-find-class-contains-some-specific-words
+#import re
+#regex = re.compile('.*footer.*')
+#soup.find_all("div", {"class" : regex})
+load_senate_committee()
+
