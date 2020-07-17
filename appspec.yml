@@ -1,0 +1,8 @@
+version: 0.0
+os: linux
+
+hooks:
+  BeforeInstall:
+      - location: ./before_install.sh
+  AfterInstall:
+      - location: ./after_install.sh

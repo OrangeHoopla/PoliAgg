@@ -4,39 +4,20 @@ from bs4 import BeautifulSoup
 #pip3 install bs4
 import requests
 
+
+
+creds=open("creds.txt","r")
+line=creds.readlines()
 mydb = mysql.connector.connect(
-  host="localhost",
-  user="orange",
-  passwd="19445715mK",
-  database="demo"
+  host=line[4].replace('\n',''),
+  user=line[5].replace('\n',''),
+  passwd=line[6].replace('\n',''),
+  database=line[7].replace('\n','')
 )
 
 mycursor = mydb.cursor()
 
 #mycursor.execute(sql, val)
-
-#mydb.commit()
-#https://www.w3schools.com/python/python_mysql_select.asp
-#print(mycursor.rowcount, "record inserted.")
-
-
-def generate_congress_table():
-    columns ="""(
-                first_name VARCHAR(255),
-                last_name VARCHAR(255), 
-                contact VARCHAR(255),
-                party VARCHAR(255),
-                district INT(255),
-                state VARCHAR(255),
-                house BOOL,
-                website VARCHAR(255),
-                imageLink VARCHAR(255),
-                congress_num INT(255)
-                )"""
-
-    mycursor.execute("CREATE TABLE congress " + columns) 
-    mycursor.execute("ALTER TABLE congress ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY") 
-
 
 def insert_congress_table(member):
 
@@ -673,5 +654,6 @@ def load_senate_committee():
 #import re
 #regex = re.compile('.*footer.*')
 #soup.find_all("div", {"class" : regex})
-load_senate_committee()
+#load_bill(type_="bills")
 
+load_senate_committee()

@@ -76,14 +76,15 @@ WSGI_APPLICATION = 'Poly_Map.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+creds=open(BASE_DIR + "/creds.txt","r")
+line=creds.readlines()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'demo',
-        'USER': 'orange',
-        'PASSWORD': '19445715mK',
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'NAME': line[7].replace('\n',''),
+        'USER': line[5].replace('\n',''),
+        'PASSWORD': line[6].replace('\n',''),
+        'HOST': line[4].replace('\n',''),   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }

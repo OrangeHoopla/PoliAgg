@@ -1,0 +1,33 @@
+version: 0.2
+
+env:
+  variables:
+    DB_ROOT_PASSWORD: "password"
+    DB_HOST: "localhost"
+    DB_PASSWORD: "password"
+    DB_SOCKET: "/var/run/mysqld/mysqld.sock"
+    KEYID: "5072E1F5"
+
+phases:
+  pre_build:
+    commands:
+      - echo "Before running tests"
+      - ls /root
+      - apt-get update
+      - apt-get install python3.6
+  build:
+    commands:
+      - echo "Running all unit tests"
+  post_build:
+    commands:
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - '**/*'
+cache:
+  paths:
+    - '/root/.cache/pip/**/*'
+    - '/var/cache/apt/archives/**/*'
+    - '/var/lib/apt/lists/**/*'
+    - '/etc/apt/sources.list.d/mysql.list'
+    - '/etc/apt/sources.list'
