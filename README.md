@@ -9,15 +9,7 @@ the goal is to create a website to aggregates information of all federal congres
 
 ## [AWS](https://aws.amazon.com/)
 ### Server Diagram
-```mermaid
-graph LR
-A[Internet Traffic] -- TCP/HTTPS --> B[Route53]
-E --> D{EC2 Instances}
-B --> E[Elastic Load Balancer]
-C[ssh] -- Port 22 --> D
-E --> F{EC2 Instances}
-E --> G{EC2 Instances}
-```
+![Server Diagram](dia.png)
 	Acquired AWS Cloud Practitioner Certification
 ### [EC2](https://aws.amazon.com/ec2/)
 * Managed Configurations through userdata.sh shell script
