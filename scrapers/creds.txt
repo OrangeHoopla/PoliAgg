@@ -1,8 +1,1 @@
-poliagg.cluster-c5yfu2vfj2hj.us-east-1.rds.amazonaws.com
-admin
-19445715mK
-PoliAgg
-localhost
-orange
-19445715mK
-demo
+
